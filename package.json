@@ -1,0 +1,14 @@
+{
+    "scripts": {
+      "db:link": "supabase link --project-ref kbjzacugbhecnggmjhzx",
+      "db:pull": "supabase db pull",
+      "db:push": "supabase db push",
+      "db:reset": "supabase db reset",
+      "db:diff": "supabase db diff",
+      "db:types": "supabase gen types typescript --project-id kbjzacugbhecnggmjhzx > ./frontend/src/types/supabase.ts",
+      "db:new-migration": "supabase migration new"
+    },
+    "devDependencies": {
+      "supabase": "^2.20.5"
+    }
+  }
