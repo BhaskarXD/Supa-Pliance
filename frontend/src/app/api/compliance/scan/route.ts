@@ -109,7 +109,7 @@ export async function POST(request: Request) {
             scan_id: scanId, // Associate with the scan
             type,
             status: 'running',
-            details: `Starting ${type.toUpperCase()} compliance check...`
+            details: JSON.stringify({ message: `Starting ${type.toUpperCase()} compliance check...` })
           })
           .select()
           .single();
