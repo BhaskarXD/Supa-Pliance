@@ -2,6 +2,10 @@
 
 A Next.js application for monitoring Supabase project compliance, focusing on security best practices and configuration standards.
 
+## ✨ Live Demo ✨
+
+🌐 **Check it out:** [https://supa-pliance.vercel.app/](https://supa-pliance.vercel.app/) 🚀
+
 ## 🎯 Features
 
 ### Core Functionality
