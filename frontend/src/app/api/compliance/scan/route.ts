@@ -142,27 +142,36 @@ export async function POST(request: Request) {
       })
       .eq('id', scanId);
     
-    // Run compliance checks in background
-    if (!project.service_key || !project.supabase_url) {
-      console.error("Missing required properties:", { 
-        hasServiceKey: !!project.service_key,
-        hasSupabaseUrl: !!project.supabase_url 
-      });
-      return NextResponse.json(
-        { error: 'Project is missing required properties' },
-        { status: 400 }
+    // Run compliance checks and wait for them to complete
+    try {
+      if (!project.service_key || !project.supabase_url) {
+        console.error("Missing required properties:", { 
+          hasServiceKey: !!project.service_key,
+          hasSupabaseUrl: !!project.supabase_url 
+        });
+        return NextResponse.json(
+          { error: 'Project is missing required properties' },
+          { status: 400 }
+        );
+      }
+      
+      await runComplianceChecks(
+        projectId, 
+        project.service_key,
+        project.supabase_url,
+        scanId
       );
-    }
-    
-    runComplianceChecks(
-      projectId, 
-      project.service_key,
-      project.supabase_url,
-      scanId  // Pass the scanId to the check runner
-    ).catch(async error => {
+      
+      // The check runner already updates all statuses, just return success
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Compliance scan completed',
+        scanId
+      });
+    } catch (error: any) {
       console.error('Error running compliance checks:', error);
       
-      // Update all running checks to failed
+      // Handle error and update statuses for any checks still in "running" state
       const { data: runningChecks } = await supabase
         .from('compliance_checks')
         .select('id, type')
@@ -215,14 +224,13 @@ export async function POST(request: Request) {
           last_scan_at: new Date().toISOString()
         })
         .eq('id', projectId);
-    });
-    
-    // Return success response immediately
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Compliance scan started',
-      scanId // Return the scanId in the response
-    });
+      
+      // Return error response to client
+      return NextResponse.json(
+        { error: 'Compliance scan failed', message: error.message },
+        { status: 500 }
+      );
+    }
     
   } catch (error) {
     console.error('Error starting compliance scan:', error);
