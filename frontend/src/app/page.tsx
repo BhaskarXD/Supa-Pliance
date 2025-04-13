@@ -5,7 +5,7 @@ import { ArrowRight, CheckCircle, Shield, LockKeyhole, Activity, Database, Serve
 
 export default function Home() {
   return (
-    <main className="home-content overflow-hidden">
+    <main className="w-full min-h-[calc(100vh-4rem)] flex flex-col">
       {/* Hero Section */}
       <section className="relative w-full py-28 md:py-36 overflow-hidden">
         {/* Background Gradient Effects */}

@@ -29,11 +29,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <div className="relative flex min-h-screen flex-col">
+            <div className="min-h-screen flex flex-col">
               <Header />
-              <main className="flex-1 pt-16">
+              <div className="flex-1 mt-16">
                 {children}
-              </main>
+              </div>
               <Footer />
             </div>
             <Toaster richColors position="top-right" />

@@ -80,26 +80,29 @@ body {
   margin: 0;
 }
 
-/* Ensure content fills available space without unnecessary scrollbars */
-html, body {
-  height: 100%;
+/* Fixed header handling */
+body {
+  min-height: 100vh;
 }
 
-/* Add custom class for home page to optimize for no scrollbar when possible */
-.home-content {
-  min-height: calc(100vh - 64px - 64px); /* viewport - header - approx footer */
-  display: flex;
-  flex-direction: column;
+/* Ensure content stays below fixed header */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  height: 4rem; /* 64px */
 }
 
-/* Prevent unnecessary scrollbars when content fits */
+/* Ensure scrolling works properly */
 html {
-  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 /* Ensure header doesn't shift when scrollbar appears */
 header.fixed {
-  width: 100vw;
+  width: 100%;
   box-sizing: border-box;
 }
 

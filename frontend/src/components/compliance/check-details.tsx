@@ -51,7 +51,8 @@ interface CheckDetailsProps {
   compact?: boolean;
   projectId?: string;
   isLatestScan?: boolean;
-  onNavigateToAutoFix?: (checkId: string) => void;
+  openSection?: string;
+  onSectionChange?: (section: string) => void;
 }
 
 // Helper function to get issue description based on check type
@@ -68,9 +69,16 @@ function getIssueDescription(check: ComplianceCheck): string {
   }
 }
 
-export function CheckDetails({ check: initialCheck, onUpdate, compact = false, projectId, isLatestScan = false, onNavigateToAutoFix }: CheckDetailsProps) {
+export function CheckDetails({ 
+  check: initialCheck, 
+  onUpdate, 
+  compact = false, 
+  projectId, 
+  isLatestScan = false, 
+  openSection = "logs",
+  onSectionChange,
+}: CheckDetailsProps) {
   const [check, setCheck] = useState<ComplianceCheck>(initialCheck);
-  const [openSection, setOpenSection] = useState<string | undefined>("logs");
   const [evidenceLogs, setEvidenceLogs] = useState<Evidence[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [progress, setProgress] = useState<number>(0);
@@ -85,50 +93,15 @@ export function CheckDetails({ check: initialCheck, onUpdate, compact = false, p
   // Add interval ref for fallback polling
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Handle navigation requests from parent
-  useEffect(() => {
-    if (onNavigateToAutoFix && 
-        isLatestScan && check.result === false && check.status === 'completed') {
-      // Create a handler that will open the auto-fix section when called
-      const handleNavigation = (checkId: string) => {
-        if (checkId === check.id) {
-          setOpenSection('auto-fix');
-        }
-      };
-      
-      // Register our component's handler with the parent
-      // This allows the parent to tell this component to navigate
-      onNavigateToAutoFix(check.id);
-      
-      // We're now using props for communication, not events
-    }
-  }, [check.id, check.result, check.status, isLatestScan, onNavigateToAutoFix]);
-
   // Update local check state when prop changes
   useEffect(() => {
     setCheck(initialCheck);
   }, [initialCheck]);
 
-  // Show auto-fix tab for all completed checks in the latest scan
-  const showAutoFixTab = isLatestScan && check.status === 'completed';
-
-  // Add this code to the useEffect section that handles navigation
-  useEffect(() => {
-    // Check if there's a request to open the auto-fix tab for this check
-    if (typeof window !== 'undefined') {
-      const openAutoFixTab = window.localStorage.getItem('openAutoFixTab');
-      const openAutoFixForCheck = window.localStorage.getItem('openAutoFixForCheck');
-      
-      if (openAutoFixTab === 'true' && openAutoFixForCheck === check.id) {
-        // Set the active section to auto-fix
-        setOpenSection('auto-fix');
-        
-        // Clear the localStorage flags so they don't trigger again on refresh
-        window.localStorage.removeItem('openAutoFixTab');
-        window.localStorage.removeItem('openAutoFixForCheck');
-      }
-    }
-  }, [check.id]);
+  // Show auto-fix tab only for completed failing checks in the latest scan
+  const showAutoFixTab = isLatestScan && 
+                         check.status === 'completed' &&
+                         check.result === false;
 
   // Function to fetch evidence logs
   const fetchEvidenceLogs = async () => {
@@ -405,7 +378,7 @@ export function CheckDetails({ check: initialCheck, onUpdate, compact = false, p
             variant="outline" 
             size="sm" 
             className="w-full bg-primary/10 text-primary border-primary/20"
-            onClick={() => setOpenSection("auto-fix")}
+            onClick={() => onSectionChange?.('auto-fix')}
           >
             <Hammer className="h-4 w-4 mr-2" />
             Fix Compliance Issue
@@ -540,7 +513,7 @@ export function CheckDetails({ check: initialCheck, onUpdate, compact = false, p
             variant="outline" 
             size="sm" 
             className="w-full bg-primary/10 text-primary border-primary/20"
-            onClick={() => setOpenSection("auto-fix")}
+            onClick={() => onSectionChange?.('auto-fix')}
           >
             <Hammer className="h-4 w-4 mr-2" />
             Fix Compliance Issue
@@ -716,7 +689,7 @@ export function CheckDetails({ check: initialCheck, onUpdate, compact = false, p
             variant="outline" 
             size="sm" 
             className="w-full bg-primary/10 text-primary border-primary/20"
-            onClick={() => setOpenSection("auto-fix")}
+            onClick={() => onSectionChange?.('auto-fix')}
           >
             <Hammer className="h-4 w-4 mr-2" />
             Fix Compliance Issue
@@ -889,6 +862,16 @@ export function CheckDetails({ check: initialCheck, onUpdate, compact = false, p
   };
 
   const renderContent = () => {
+    // If trying to show auto-fix tab but it's not available, switch to logs or details
+    if (openSection === 'auto-fix' && !showAutoFixTab) {
+      if (onSectionChange) {
+        // Default to details if available, otherwise logs
+        const defaultSection = check.status === 'completed' ? 'details' : 'logs';
+        // Use setTimeout to avoid React state update during render
+        setTimeout(() => onSectionChange(defaultSection), 0);
+      }
+    }
+    
     if (compact) {
       // Simplified view for the modal
       return (
@@ -906,7 +889,7 @@ export function CheckDetails({ check: initialCheck, onUpdate, compact = false, p
       <Tabs 
         defaultValue={openSection}
         value={openSection} 
-        onValueChange={setOpenSection}
+        onValueChange={(value) => onSectionChange?.(value)}
         className="w-full h-full flex flex-col"
       >
         <div className="flex-shrink-0 pb-4">

@@ -82,6 +82,11 @@ export default function ProjectPage() {
   const [scanDrawerOpen, setScanDrawerOpen] = useState(false);
   const [selectedScan, setSelectedScan] = useState<string | null>(null);
   const [selectedCheckType, setSelectedCheckType] = useState<'mfa' | 'rls' | 'pitr' | null>(null);
+  const [checkOpenSections, setCheckOpenSections] = useState<Record<string, string>>({
+    'mfa': 'logs',
+    'rls': 'logs',
+    'pitr': 'logs'
+  });
   const [isScanning, setIsScanning] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [supabase] = useState(() => createClient());
@@ -543,6 +548,13 @@ export default function ProjectPage() {
                   check={check} 
                   projectId={typeof params.id === 'string' ? params.id : params.id[0]}
                   isLatestScan={isLatestScan}
+                  openSection={checkOpenSections[check.type]}
+                  onSectionChange={(section: string) => {
+                    setCheckOpenSections(prev => ({
+                      ...prev,
+                      [check.type]: section
+                    }));
+                  }}
                   onUpdate={(updatedCheck) => {
                     // Ensure we pass all required fields including scan_id
                     const completeCheck: ComplianceCheck = {
@@ -551,13 +563,6 @@ export default function ProjectPage() {
                       scan_id: check.scan_id // Preserve the scan_id 
                     };
                     handleCheckUpdate(completeCheck);
-                  }}
-                  onNavigateToAutoFix={(checkId: string) => {
-                    // No need for custom events, we directly set state
-                    if (check.id === checkId) {
-                      // This will be handled inside the CheckDetails component
-                      // which has its own setOpenSection function
-                    }
                   }}
                 />
               </div>
@@ -631,18 +636,26 @@ export default function ProjectPage() {
                     if (check) {
                       setSelectedScan(scan.id);
                       setSelectedCheckType(check.type);
-                      break;
-                    }
-                  }
-                }}
-                onNavigateToAutoFix={(checkId: string) => {
-                  for (const scan of scans) {
-                    const check = scan.checks.find(c => c.id === checkId);
-                    if (check) {
-                      setSelectedScan(scan.id);
-                      setSelectedCheckType(check.type);
-                      window.localStorage.setItem('openAutoFixForCheck', checkId);
-                      window.localStorage.setItem('openAutoFixTab', 'true');
+                      
+                      // Only set auto-fix section for failing checks in the latest scan
+                      const isLatestScan = scans.length > 0 && scans[0].id === scan.id;
+                      const shouldShowAutoFix = isLatestScan && 
+                                              check.status === 'completed' && 
+                                              check.result === false;
+                      
+                      if (shouldShowAutoFix) {
+                        // Navigate to auto-fix section if available
+                        setCheckOpenSections(prev => ({
+                          ...prev,
+                          [check.type]: 'auto-fix'
+                        }));
+                      } else {
+                        // Otherwise default to details or logs
+                        setCheckOpenSections(prev => ({
+                          ...prev,
+                          [check.type]: check.status === 'completed' ? 'details' : 'logs'
+                        }));
+                      }
                       break;
                     }
                   }

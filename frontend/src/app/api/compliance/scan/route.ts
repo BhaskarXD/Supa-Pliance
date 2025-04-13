@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { runComplianceChecks } from '../lib/check-runner';
-import { createServerSupabaseClient } from '@/utils/supabase-admin';
+import { createServerSupabaseClient, logEvidence } from '@/utils/supabase-admin';
 
 export async function POST(request: Request) {
   try {
@@ -159,8 +159,62 @@ export async function POST(request: Request) {
       project.service_key,
       project.supabase_url,
       scanId  // Pass the scanId to the check runner
-    ).catch(error => {
+    ).catch(async error => {
       console.error('Error running compliance checks:', error);
+      
+      // Update all running checks to failed
+      const { data: runningChecks } = await supabase
+        .from('compliance_checks')
+        .select('id, type')
+        .eq('scan_id', scanId)
+        .eq('status', 'running');
+      
+      if (runningChecks && runningChecks.length > 0) {
+        // Update each check individually
+        for (const check of runningChecks) {
+          await supabase
+            .from('compliance_checks')
+            .update({
+              status: 'completed',
+              result: false,
+              details: JSON.stringify({ error: error.message || 'An unexpected error occurred' })
+            })
+            .eq('id', check.id);
+            
+          // Log evidence for failed check
+          await logEvidence(
+            supabase,
+            check.id,
+            `${check.type.toUpperCase()} check failed due to exception`,
+            'error',
+            { error: error.message, stack: error.stack }
+          );
+        }
+      }
+      
+      // Update scan status to failed
+      await supabase
+        .from('scans')
+        .update({ 
+          status: 'failed', 
+          completed_at: new Date().toISOString(),
+          summary: { 
+            error: error.message || 'An unexpected error occurred',
+            total_checks: runningChecks?.length || 0,
+            failed_checks: runningChecks?.length || 0,
+            passed_checks: 0
+          }
+        })
+        .eq('id', scanId);
+        
+      // Update project status to failed
+      await supabase
+        .from('projects')
+        .update({ 
+          status: 'failed',
+          last_scan_at: new Date().toISOString()
+        })
+        .eq('id', projectId);
     });
     
     // Return success response immediately

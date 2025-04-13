@@ -1,19 +1,16 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
+import {getSupabaseAdmin} from "@/utils/supabase-admin";
 
 export async function POST(request: Request) {
   try {
     // Get request body
     const body = await request.json();
     const { name, supabase_url, service_key, db_connection_string, enabled_checks } = body;
-    
-    // Initialize Supabase client
-    const supabase = createClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-    
+
+    const supabase = await getSupabaseAdmin();
+
     // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     

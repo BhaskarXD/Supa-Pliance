@@ -30,7 +30,7 @@ interface FloatingAutoFixProps {
   scan: ScanGroup;
   projectId: string;
   onSelectCheck: (checkId: string) => void;
-  onNavigateToAutoFix: (checkId: string) => void;
+  onNavigateToAutoFix?: (checkId: string) => void;
   className?: string;
 }
 
@@ -117,8 +117,8 @@ export function FloatingAutoFix({ scan, projectId, onSelectCheck, onNavigateToAu
                           : "border-blue-200 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/10 dark:hover:bg-blue-900/20"
                     )}
                     onClick={() => {
+                      // Just select the check - navigating to auto-fix section handled by parent
                       onSelectCheck(check.id);
-                      onNavigateToAutoFix(check.id);
                       setIsOpen(false);
                     }}
                   >
