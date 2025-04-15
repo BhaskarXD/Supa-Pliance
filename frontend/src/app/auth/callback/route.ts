@@ -31,6 +31,6 @@ export async function GET(request: NextRequest) {
   }
 
   // URL to redirect to after sign in process completes
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || requestUrl.origin;
+  const appUrl = requestUrl.origin;
   return NextResponse.redirect(new URL('/dashboard', appUrl));
 } 
