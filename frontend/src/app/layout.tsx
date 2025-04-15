@@ -36,7 +36,20 @@ export default function RootLayout({
               </div>
               <Footer />
             </div>
-            <Toaster richColors position="top-right" />
+            <Toaster 
+              position="top-right"
+              toastOptions={{
+                className: 'border border-border shadow-md rounded-lg',
+                style: { 
+                  background: 'hsl(var(--primary-foreground))', 
+                  color: 'hsl(var(--primary))',
+                  fontSize: '14px',
+                },
+                duration: 4000,
+              }}
+              closeButton={false}
+              richColors
+            />
           </AuthProvider>
         </ThemeProvider>
       </body>

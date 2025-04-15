@@ -40,7 +40,7 @@ export default function RegisterPage() {
         description: 'Please check your email to verify your account.'
       });
 
-      router.push('/login?registered=true');
+      router.push('/login');
     } catch (err: any) {
       toast({
         title: 'Error',

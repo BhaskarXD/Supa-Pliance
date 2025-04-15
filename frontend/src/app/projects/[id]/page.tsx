@@ -335,7 +335,7 @@ export default function ProjectPage() {
         throw new Error('Failed to start scan');
       }
 
-      toast.success('Scan started successfully');
+      toast.success('Scan completed successfully');
     } catch (error) {
       console.error('Error starting scan:', error);
       toast.error('Failed to start scan');

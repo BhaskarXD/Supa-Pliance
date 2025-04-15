@@ -18,15 +18,6 @@ function LoginContent() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (searchParams.get('registered')) {
-      toast({
-        title: 'Registration successful!',
-        description: 'Please check your email to verify your account.'
-      });
-    }
-  }, [searchParams, toast]);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);

@@ -52,7 +52,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         throw new Error(result.error || 'Failed to start scan');
       }
       
-      toast.success('Scan started successfully');
+      toast.success('Scan completed successfully');
       router.refresh();
     } catch (error: any) {
       console.error("Scan error:", error);
