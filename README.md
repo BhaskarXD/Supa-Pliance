@@ -31,6 +31,65 @@ A Next.js application for monitoring Supabase project compliance, focusing on se
   - Best practice recommendations
   - Interactive problem resolution
 
+## 📸 Screenshots
+
+### Landing Page
+![Landing Page](frontend/public/readme/landing_page.png)
+
+### Landing Page with Feature Highlights
+![Landing Page Features](frontend/public/readme/landing_page_features.png)
+
+### Projects List Page
+![Projects List Page](frontend/public/readme/projects_list_page.png)
+
+### Create Project Page
+![Create Project Page](frontend/public/readme/create_project_page.png)
+
+---
+
+## Compliance Scan Views
+
+### Project's Database Scan Details Page
+![Scan Details Page](frontend/public/readme/scan_details_page.png)
+
+### Project's Database Scan Ongoing View
+![Scan Ongoing View](frontend/public/readme/scan_ongoing_view.png)
+
+---
+
+## Detailed Tabs & Auto-Fix
+
+### MFA Details Tab
+![MFA Details Tab](frontend/public/readme/MFA_details_tab.png)
+
+### MFA Auto-Fix Tab
+![MFA Auto-Fix Tab](frontend/public/readme/MFA_autofix_tab.png)
+
+### MFA Evidence Logs Tab
+![MFA Evidence Logs Tab](frontend/public/readme/MFA_evidence_logs_tab.png)
+
+---
+
+### RLS Details Tab
+![RLS Details Tab](frontend/public/readme/RLS_details_tab.png)
+
+### RLS Auto-Fix Tab
+![RLS Auto-Fix Tab](frontend/public/readme/RLS_autofix_tab.png)
+
+---
+
+### PITR Details Tab
+![PITR Details Tab](frontend/public/readme/PTIR_details_tab.png)
+
+### PITR Auto-Fix Tab
+![PITR Auto-Fix Tab](frontend/public/readme/PTIR_autofix_tab.png)
+
+### PITR Evidence Logs Tab
+![PITR Evidence Logs Tab](frontend/public/readme/PITR_evidence_logs_tab.png)
+
+---
+
+
 ## 🚀 Getting Started
 
 ### Prerequisites
